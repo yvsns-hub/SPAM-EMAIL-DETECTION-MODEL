@@ -1,14 +1,3 @@
----
-title: Spam Email Detection Model
-emoji: 🛡️
-colorFrom: red
-colorTo: orange
-sdk: streamlit
-sdk_version: 1.32.0
-app_file: app.py
-pinned: false
----
-
 # Spam Email Detection System 🛡️
 
 Detect spam and phishing attempts using Machine Learning.
