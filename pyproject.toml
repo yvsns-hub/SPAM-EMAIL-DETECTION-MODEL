@@ -1,0 +1,17 @@
+[project]
+name = "spam-email-detection-model"
+version = "0.1.0"
+description = "Spam Email Detection System using Streamlit"
+dependencies = [
+    "streamlit",
+    "pandas",
+    "numpy",
+    "scikit-learn",
+    "nltk",
+]
+
+[project.scripts]
+app = "streamlit:main"
+
+[tool.setuptools]
+py-modules = ["app"]
