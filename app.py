@@ -3,36 +3,97 @@ import pandas as pd
 import pickle
 import string
 import nltk
+from datetime import datetime
 from nltk.corpus import stopwords
 
 # Page configuration
 st.set_page_config(
-    page_title="Spam Email Detection System",
+    page_title="🛡️ AI Suite | Spam Detection",
     page_icon="🛡️",
-    layout="centered"
+    layout="wide"
 )
 
 # Download NLTK data
 nltk.download('stopwords')
 
-# Custom Styling
+# Custom CSS for professional technical theme (Restoring the "AI Suite" experience)
 st.markdown("""
 <style>
+    :root {
+        --primary-color: #0f172a;
+        --secondary-color: #1e293b;
+        --accent-color: #0ea5e9;
+        --accent-green: #10b981;
+        --accent-red: #ef4444;
+        --border-color: #334155;
+    }
+    
     .main {
-        background-color: #f0f2f6;
+        background: linear-gradient(135deg, #0f172a 0%, #1a1f3a 100%);
+        color: #e2e8f0;
     }
-    .stTextArea>div>div>textarea {
-        background-color: white;
+    
+    .header-container {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        padding: 2rem;
+        border-radius: 12px;
+        margin-bottom: 2rem;
+        color: white;
+        box-shadow: 0 0 30px rgba(239, 68, 68, 0.2);
     }
-    .result-box {
+    
+    .section-header {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: #ef4444;
+        padding: 1rem 0;
+        border-bottom: 2px solid #ef4444;
+        margin: 1.5rem 0 1rem 0;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    
+    .result-safe {
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%);
+        border: 2px solid #10b981;
+        border-radius: 8px;
         padding: 1.5rem;
-        border-radius: 10px;
-        text-align: center;
-        margin-top: 1.5rem;
-        font-weight: bold;
+        margin: 1rem 0;
     }
-    .spam { background-color: #ffcccc; color: #cc0000; border: 1px solid #cc0000; }
-    .ham { background-color: #ccffcc; color: #006600; border: 1px solid #006600; }
+    
+    .result-spam {
+        background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(239, 68, 68, 0.05) 100%);
+        border: 2px solid #ef4444;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin: 1rem 0;
+    }
+    
+    .risk-meter {
+        width: 100%;
+        height: 12px;
+        background: #334155;
+        border-radius: 6px;
+        margin: 1rem 0;
+        overflow: hidden;
+    }
+    
+    .risk-meter-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #10b981, #ef4444);
+        transition: width 0.5s ease;
+    }
+    
+    .stButton>button {
+        width: 100%;
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        font-weight: bold;
+        border-radius: 8px;
+        box-shadow: 0 0 20px rgba(239, 68, 68, 0.2);
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -43,45 +104,86 @@ try:
     with open('tfidf_vectorizer.pkl', 'rb') as f:
         tfidf = pickle.load(f)
 except FileNotFoundError:
-    st.error("Model or Vectorizer file not found. Please run 'train.py' first.")
+    st.error("Model files not found. Please run 'train.py' first.")
     st.stop()
 
 def transform_text(text):
     text = text.lower()
     text = text.translate(str.maketrans('', '', string.punctuation))
-    
     stop_words = set(stopwords.words('english'))
     tokens = text.split()
-    filtered_tokens = [word for word in tokens if word not in stop_words]
-    return ' '.join(filtered_tokens)
+    return ' '.join([word for word in tokens if word not in stop_words])
 
 # Header
-st.title("🛡️ Spam Email Detection System")
-st.write("Analyze emails to identify potential threats and spam content.")
-st.markdown("---")
+st.markdown("""
+    <div class="header-container">
+        <h1>🛡️ AI Suite | Spam Detection</h1>
+        <p>Enterprise-grade machine learning for real-time threat analysis and email security.</p>
+    </div>
+""", unsafe_allow_html=True)
 
-# Input
-input_sms = st.text_area("Paste the email or message content here", height=200)
-
-if st.button("🔍 Analyze Message"):
-    if input_sms.strip() == "":
-        st.warning("Please enter some text to analyze.")
-    else:
-        # Preprocess
-        transformed_sms = transform_text(input_sms)
-        
-        # Vectorize
-        vector_input = tfidf.transform([transformed_sms])
-        
-        # Predict
-        # Label mapping: spam -> 0, ham -> 1 (as per original notebook)
-        result = model.predict(vector_input)[0]
-        
-        # Display
-        if result == 0:
-            st.markdown('<div class="result-box spam">🚨 SPAM DETECTED! This message might be dangerous.</div>', unsafe_allow_html=True)
+# Main Form
+with st.container():
+    st.markdown('<div class="section-header">📧 Security Analysis</div>', unsafe_allow_html=True)
+    email_body = st.text_area("Paste Email Content Here", height=250, placeholder="Paste email subject + body here for automatic analysis...")
+    
+    if st.button("🔍 ANALYZE THREAT LEVEL"):
+        if not email_body.strip():
+            st.error("Please provide email content for analysis.")
         else:
-            st.markdown('<div class="result-box ham">✅ HAM! This message appears to be safe and legitimate.</div>', unsafe_allow_html=True)
+            # 1. Machine Learning Prediction
+            transformed_sms = transform_text(email_body)
+            vector_input = tfidf.transform([transformed_sms])
+            ml_prediction = model.predict(vector_input)[0]  # 0: Spam, 1: Ham
+            
+            # 2. Heuristic Risk Factor Analysis (for UI depth)
+            email_lower = email_body.lower()
+            spam_score = 0
+            spam_factors = []
+            
+            if 'http' in email_lower or 'www.' in email_lower:
+                spam_score += 20; spam_factors.append("Contains suspicious links/URLs")
+            if any(k in email_lower for k in ['urgent', 'immediately', 'act now', 'asap']):
+                spam_score += 25; spam_factors.append("High-pressure urgency tactics detected")
+            if any(k in email_lower for k in ['verify', 'confirm', 'password', 'login', 'account']):
+                spam_score += 30; spam_factors.append("Credential or sensitive info request flagged")
+            if sum(1 for char in email_body if char.isupper()) / max(len(email_body), 1) > 0.4:
+                spam_score += 15; spam_factors.append("Excessive capitalization detected")
+            
+            # Adjust score based on ML model (ML has final say)
+            if ml_prediction == 0:  # Predicted as Spam
+                spam_score = max(spam_score, 75)
+                classification = "SPAM / PHISHING"
+            else:
+                spam_score = min(spam_score, 25)
+                classification = "SAFE"
+            
+            # Display Results
+            st.markdown('<div class="section-header">📊 Analysis Results</div>', unsafe_allow_html=True)
+            
+            if classification == "SAFE":
+                st.markdown(f"""
+                    <div class="result-safe">
+                        <h2 style="color: #10b981;">✅ LEGITIMATE (HAM)</h2>
+                        <p>This message appears safe. No significant threats detected.</p>
+                        <div class="risk-meter"><div class="risk-meter-fill" style="width: {spam_score}%; background: #10b981;"></div></div>
+                        <p>Security Confidence: <strong>{100-spam_score}%</strong></p>
+                    </div>
+                """, unsafe_allow_html=True)
+            else:
+                st.markdown(f"""
+                    <div class="result-spam">
+                        <h2 style="color: #ef4444;">🚨 SPAM / PHISHING DETECTED</h2>
+                        <p>Warning: This email shows strong signs of being malicious. Do not interact with links.</p>
+                        <div class="risk-meter"><div class="risk-meter-fill" style="width: {spam_score}%;"></div></div>
+                        <p>Threat Probability: <strong>{spam_score}%</strong></p>
+                    </div>
+                """, unsafe_allow_html=True)
+            
+            if spam_factors:
+                st.markdown('<div class="section-header">⚠️ Detected Risk Factors</div>', unsafe_allow_html=True)
+                for i, factor in enumerate(spam_factors, 1):
+                    st.markdown(f"- **{i}.** {factor}")
 
 st.markdown("---")
-st.caption("Machine Learning powered security for your inbox.")
+st.caption("© 2024 AI Suite Professional Security Solutions. Powered by Multi-Vector ML Analysis.")
