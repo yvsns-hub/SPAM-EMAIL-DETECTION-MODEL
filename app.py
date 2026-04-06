@@ -196,4 +196,4 @@ with st.container():
                     st.markdown(f"- **{i}.** {factor}")
 
 st.markdown("---")
-st.caption("© 2024 AI Suite Professional Security Solutions. Powered by Hybrid Multi-Vector Analysis.")
+st.caption("© 2026 AI Suite Professional Security Solutions. Powered by Hybrid Multi-Vector Analysis.")
